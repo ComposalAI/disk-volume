@@ -1,0 +1,23 @@
+name: Composal Disk Volume
+description: Mount an isolated dependency directory backed by a Modal Volume on Composal runners.
+author: ComposalAI
+inputs:
+  key:
+    description: Repository-scoped name for the persistent dependency directory.
+    required: true
+  path:
+    description: Empty directory to mount (absolute, workspace-relative, or ~/).
+    required: true
+outputs:
+  cache-hit:
+    description: Whether a trusted published snapshot was available when the runner started.
+  path:
+    description: Absolute path of the mounted dependency directory.
+runs:
+  using: node24
+  main: main.cjs
+  post: post.cjs
+  post-if: always()
+branding:
+  icon: hard-drive
+  color: yellow
