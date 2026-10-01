@@ -27,7 +27,7 @@ function mount(env = process.env) {
   if (fs.realpathSync(target) !== target || fs.readdirSync(target).length) throw new Error('Mount path must be an empty directory without symlinks');
   execFileSync('mount', ['--bind', source, target], {stdio:'inherit'});
   fs.writeFileSync(stateFile, JSON.stringify({key}), {flag:'wx'});
-  fs.appendFileSync(env.GITHUB_STATE, `target=${target}\nroot=${root}\n`);
+  fs.appendFileSync(env.GITHUB_STATE, `target=${target}\nroot=${root}\ndigest=${digest}\n`);
   fs.appendFileSync(env.GITHUB_OUTPUT, `cache-hit=${hit}\npath=${target}\n`);
   console.log(`Mounted ${key}: ${hit ? 'trusted snapshot restored' : 'empty volume'} at ${target}`);
 }

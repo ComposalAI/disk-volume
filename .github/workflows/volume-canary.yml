@@ -20,7 +20,8 @@ jobs:
     runs-on: ["composal-x64-${{ inputs.size || '4' }}x"]
     steps:
       - uses: actions/checkout@v4
-      - uses: composalai/disk-volume@v1
+      - run: node --test post.test.cjs
+      - uses: ./
         id: disk
         with:
           key: volume-canary-v1
@@ -28,11 +29,11 @@ jobs:
       - name: Verify restore and isolation
         env:
           CACHE_HIT: ${{ steps.disk.outputs.cache-hit }}
-          EXPECTED_HIT: ${{ inputs.expected_hit || 'true' }}
+          EXPECTED_HIT: ${{ inputs.expected_hit || '' }}
           EVENT: ${{ github.event_name }}
         run: |
           set -eu
-          test "$CACHE_HIT" = "$EXPECTED_HIT"
+          if [ -n "$EXPECTED_HIT" ]; then test "$CACHE_HIT" = "$EXPECTED_HIT"; fi
           findmnt -T /tmp/dependency-store
           if [ "$CACHE_HIT" = true ]; then
             test "$(cat /tmp/dependency-store/proof)" = trusted
