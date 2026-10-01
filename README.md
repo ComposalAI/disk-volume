@@ -26,9 +26,10 @@ keys for package download stores (`~/.npm`, a pnpm store, Cargo registry/git
 caches); package managers check the package versions and integrity. Use distinct
 keys for incompatible platforms or toolchains.
 
-Each VM starts with a private writable clone of trusted snapshots. Concurrent
-jobs never share a live directory. Changes are flushed in the action's post
-step. After the VM stops, Composal verifies the job's actual GitHub assignment:
+Each VM extracts trusted snapshots into private directories on its local disk,
+so package managers and tests read local files. Concurrent jobs never share a
+live directory. The action's post step archives its directory to the job's
+private Modal Volume namespace. After the VM stops, Composal verifies the job's actual GitHub assignment:
 only successful `push`, `schedule`, or `workflow_dispatch` jobs on the
 repository's default branch can publish a new snapshot. Pull requests and other
 branches can restore and modify their private clone, but their writes are
@@ -39,7 +40,7 @@ No Modal credentials or additional GitHub workflow permissions are needed.
 This action requires Linux Composal runners and host jobs. Container jobs are
 not supported in v1. The path must be empty and must not traverse a symlink;
 existing files are never hidden or replaced. Do not use this action to mount
-Docker's overlay storage; this is a distributed filesystem directory, not an
+Docker's overlay storage; this is a persisted dependency directory, not an
 ext4 block device. Keep deployment artifacts and irreplaceable data elsewhere.
 
 Limits: five disk mounts per job, 32 keys and 10 GiB of published data per
