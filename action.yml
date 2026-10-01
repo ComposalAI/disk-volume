@@ -1,5 +1,5 @@
 name: Composal Disk Volume
-description: Mount an isolated dependency directory backed by a Modal Volume on Composal runners.
+description: Persist dependency directories across Composal GitHub Actions jobs.
 author: ComposalAI
 inputs:
   key:
