@@ -10,7 +10,7 @@ inputs:
     required: true
 outputs:
   cache-hit:
-    description: Whether a trusted published snapshot was available when the runner started.
+    description: Whether the persistent cache directory already existed.
   path:
     description: Absolute path of the mounted dependency directory.
 runs:
