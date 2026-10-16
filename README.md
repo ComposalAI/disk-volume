@@ -10,7 +10,7 @@ jobs:
     runs-on: [composal-x64-4x]
     steps:
       - uses: actions/checkout@v4
-      - uses: composalai/disk-volume@v1
+      - uses: composalai/disk-volume@v1.2.0
         id: npm-disk
         with:
           key: npm-store-v1
@@ -26,19 +26,23 @@ keys for package download stores (`~/.npm`, a pnpm store, Cargo registry/git
 caches); package managers check the package versions and integrity. Use distinct
 keys for incompatible platforms or toolchains.
 
-Each job restores its own copy of a trusted snapshot. Concurrent jobs never
-share a live directory. Only successful `push`, `schedule`, or
-`workflow_dispatch` jobs on the repository's default branch publish an updated
-snapshot. Pull requests and other branches can restore and modify their copy,
-but their changes are discarded. When trusted jobs publish the same key
-concurrently, the last completed publication becomes the snapshot for future
-jobs; changes are not merged.
+The directory is backed by persistent storage mounted directly on the runner.
+Package managers read and update it in place. The post step flushes writes;
+there is no archive, restore copy, snapshot publication, or automatic deletion.
+The repository checkout and `.git` stay on local runner disk.
 
-Limits: five disk mounts per job, 32 keys and 10 GiB of published data per
-repository. Snapshots unused for seven days are not restored. Superseded
-snapshots are removed after seven days and abandoned job clones after a day.
-Current snapshot metadata remains reserved until the key is reused; this first
-release has no user-facing disk deletion interface.
+Jobs with the same key share a writable cache across branches and runner sizes,
+including pull requests and failed jobs. Use it for rebuildable package download
+stores with integrity checks. Choose separate keys for tools that require an
+exclusive writable directory. Do not store credentials or use these directories
+as build outputs or workspaces. Committed writes are visible to subsequent
+runners; an already running job does not automatically refresh its view.
+
+Up to five keys can be mounted per job. `cache-hit` means the directory already
+exists, not that every dependency is present. Let the package manager install
+missing packages. VM runners use bind mounts; sandboxes link the requested path
+to the mounted storage. The first run after the direct-storage update starts
+cold; archive snapshots from older runners are not copied or extracted.
 
 Dependency disks are opt-in. Ordinary `actions/cache` and language setup actions
 continue using GitHub's cache backend.
